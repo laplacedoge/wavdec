@@ -28,6 +28,7 @@ enum {
             WAVDEC_ERR_MISS_DATA_CHUNK,
             WAVDEC_ERR_ILLEGAL_DATA_CHUNK,
     WAVDEC_ERR_ILLEGAL_OPT,
+        WAVDEC_ERR_ILLEGAL_ARG,
         WAVDEC_ERR_FRAME_OVERFLOW,
 };
 
@@ -61,6 +62,19 @@ enum {
     WAVDEC_SAMPLE_BIT_16,       // 16-bit sample.
     WAVDEC_SAMPLE_BIT_24,       // 24-bit sample.
     WAVDEC_SAMPLE_BIT_32,       // 32-bit sample.
+};
+
+enum {
+    WAVDEC_SEEK_SET = 0,        // From beginning frame.
+    WAVDEC_SEEK_CURT,           // From current frame.
+    WAVDEC_SEEK_END,            // From ending frame.
+};
+
+enum {
+    WAVDEC_CONV_MS2FRAME = 0,   // Convert milliseconds to frames.
+    WAVDEC_CONV_MS2BYTE,        // Convert milliseconds to bytes.
+    WAVDEC_CONV_FRAME2MS,       // Convert frames to milliseconds.
+    WAVDEC_CONV_FRAME2BYTE,     // Convert frames to bytes.
 };
 
 typedef struct wav_handle {
@@ -112,5 +126,15 @@ int wavdec_get_opterr();
 int wavdec_init(const char *path, wav_handle_t *handle);
 
 int wavdec_deinit(wav_handle_t *handle);
+
+uint32_t wavdec_get_frame_size(wav_handle_t *handle);
+
+uint32_t wavdec_get_total_frames(wav_handle_t *handle);
+
+uint32_t wavdec_conv(wav_handle_t *handle, uint32_t value, int code);
+
+int wavdec_seek(wav_handle_t *handle, int offset, int whence);
+
+int wavdec_read(wav_handle_t *handle, void *buff, uint32_t size);
 
 #endif

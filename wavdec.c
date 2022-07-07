@@ -268,3 +268,115 @@ int wavdec_deinit(wav_handle_t *handle) {
     }
     return WAVDEC_ERR_NONE;
 }
+
+/**
+ * @brief   Get frame size.
+ * @note    Handle is used to provide number of channels and sample bits.
+ * 
+ * @param handle  Handle pointer.
+ * @return  Frame size(int bytes)
+ */
+uint32_t wavdec_get_frame_size(wav_handle_t *handle) {
+    return handle->ch_num * (handle->sample_bit / 8);
+}
+
+/**
+ * @brief   Get frame size.
+ * @note    Handle is used to provide audio data size.
+ * 
+ * @param handle  Handle pointer.
+ * @return  Number of total frames.
+ */
+uint32_t wavdec_get_total_frames(wav_handle_t *handle) {
+    return handle->data_size / wavdec_get_frame_size(handle);
+}
+
+/**
+ * @brief   Convert value to another form.
+ * 
+ * @param handle  Handle pointer.
+ * @param value   Value to be converted.
+ * @return  Result of conversion.
+ */
+uint32_t wavdec_conv(wav_handle_t *handle, uint32_t value, int code) {
+    uint32_t converted;
+    __opterr = WAVDEC_ERR_NONE;
+    switch(code) {
+    case WAVDEC_CONV_MS2FRAME:
+    case WAVDEC_CONV_MS2BYTE: {
+        converted = (uint32_t)(((uint64_t)handle->sample_rate * (uint64_t)value + 500) / 1000);
+        if(code == WAVDEC_CONV_MS2BYTE) {
+            converted *= wavdec_get_frame_size(handle);
+        }
+    } break;
+    case WAVDEC_CONV_FRAME2MS: {
+        converted = value * 1000 / handle->sample_rate;
+    } break;
+    case WAVDEC_CONV_FRAME2BYTE: {
+        converted = value * wavdec_get_frame_size(handle);
+    } break;
+    default: {
+        __opterr = WAVDEC_ERR_ILLEGAL_ARG;
+    } break;
+    return converted;
+    }
+}
+
+/**
+ * @brief   Seek audio data(set audio playing progress).
+ * 
+ * @param handle  Handle pointer.
+ * @param offset  Seeking offset based on beginning position.
+ * @param whence  Beginning position for seeking.
+ * @return  0 is success, otherwise failure.
+ */
+int wavdec_seek(wav_handle_t *handle, int offset, int whence) {
+    uint32_t total_frames;
+    uint32_t start_frame;
+    uint32_t progress;
+    if(!(whence == WAVDEC_SEEK_SET || whence == WAVDEC_SEEK_CURT || whence == WAVDEC_SEEK_END)) {
+        whence = WAVDEC_SEEK_CURT;
+    }
+    total_frames = wavdec_get_total_frames(handle);
+    if(whence == WAVDEC_SEEK_SET) {
+        start_frame = 0;
+    } else if(whence == WAVDEC_SEEK_CURT) {
+        start_frame = handle->progress;
+    } else {
+        start_frame = total_frames;
+    }
+    progress = start_frame + offset;
+    if(progress > total_frames) {
+        __opterr == WAVDEC_ERR_FRAME_OVERFLOW;
+        return -1;
+    }
+    handle->progress = progress;
+    __opterr == WAVDEC_ERR_NONE;
+    return 0;
+}
+
+/**
+ * @brief   Seek audio data(set audio playing progress).
+ * 
+ * @param handle  Handle pointer.
+ * @param buff    Data buffer pointer.
+ * @param size    Reading size(in frames).
+ * @return  0 is success, otherwise failure.
+ */
+int wavdec_read(wav_handle_t *handle, void *buff, uint32_t size) {
+    uint32_t offset;
+    uint32_t __size;
+    int rsize;
+    offset = handle->offset.data_chunk + sizeof(wav_data_chunk_t) + handle->progress * wavdec_get_frame_size(handle);
+    __wavdec_fsif_seek(handle->file, offset);
+    if(__opterr != WAVDEC_ERR_NONE) {
+        return -1;
+    }
+    __size = size * wavdec_get_frame_size(handle);
+    rsize = __wavdec_fsif_read(handle->file, buff, __size);
+    if(__opterr != WAVDEC_ERR_NONE) {
+        return -1;
+    }
+    __opterr = WAVDEC_ERR_NONE;
+    return rsize;
+}
