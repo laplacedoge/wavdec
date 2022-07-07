@@ -45,8 +45,7 @@ __attribute__((weak)) int __wavdec_fsif_size(void *file) {
  * @param   offset  Seeking offset in which starts from the beginning of the file.
  * @return  -1 is failure, 0 is success.
  */
-__attribute__((weak))
-int __wavdec_fsif_seek(void *file, uint32_t offset) {
+__attribute__((weak)) int __wavdec_fsif_seek(void *file, uint32_t offset) {
     __opterr = WAVDEC_ERR_FILE_SEEK_FAIL;
     return -1;
 }
@@ -58,8 +57,7 @@ int __wavdec_fsif_seek(void *file, uint32_t offset) {
  * @param   size    Reading data size.
  * @return  -1 is failure, otherwise actual reading size.
  */
-__attribute__((weak))
-int __wavdec_fsif_read(void *file, void *buff, uint32_t size) {
+__attribute__((weak)) int __wavdec_fsif_read(void *file, void *buff, uint32_t size) {
     __opterr = WAVDEC_ERR_FILE_READ_FAIL;
     return -1;
 }
@@ -69,8 +67,7 @@ int __wavdec_fsif_read(void *file, void *buff, uint32_t size) {
  * @param   file    File pointer.
  * @return  -1 is failure, 0 is success.
  */
-__attribute__((weak))
-int __wavdec_fsif_close(void *file){
+__attribute__((weak)) int __wavdec_fsif_close(void *file){
     __opterr = WAVDEC_ERR_FILE_CLOSE_FAIL;
     return -1;
 }
