@@ -361,19 +361,24 @@ int wavdec_seek(wav_handle_t *handle, int offset, int whence) {
  * @return  -1 is failure, otherwise the actual reading size(in frames).
  */
 int wavdec_read(wav_handle_t *handle, void *buff, uint32_t size) {
+    uint32_t read_frames;
+    uint32_t frame_size;
     uint32_t offset;
     uint32_t __size;
-    int rsize;
-    offset = handle->offset.data_chunk + sizeof(wav_data_chunk_t) + handle->progress * wavdec_get_frame_size(handle);
+    int read_size;
+    frame_size = wavdec_get_frame_size(handle);
+    offset = handle->offset.data_chunk + sizeof(wav_data_chunk_t) + handle->progress * frame_size;
     __wavdec_fsif_seek(handle->file, offset);
     if(__opterr != WAVDEC_ERR_NONE) {
         return -1;
     }
-    __size = size * wavdec_get_frame_size(handle);
-    rsize = __wavdec_fsif_read(handle->file, buff, __size);
+    __size = size * frame_size;
+    read_size = __wavdec_fsif_read(handle->file, buff, __size);
     if(__opterr != WAVDEC_ERR_NONE) {
         return -1;
     }
+    read_frames = read_size / frame_size;
+    handle->progress += read_frames;
     __opterr = WAVDEC_ERR_NONE;
-    return rsize;
+    return read_frames;
 }
