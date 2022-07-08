@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "Failed to initialize wav handle, opterr: %d\n", opterr);
         return -1;
     }
-    wavdec_deinit(&wav_handle);
+    opterr = wavdec_deinit(&wav_handle);
     if(opterr != WAVDEC_ERR_NONE) {
         fprintf(stderr, "Failed to deinitialize wav handle, opterr: %d\n", opterr);
         return -1;
