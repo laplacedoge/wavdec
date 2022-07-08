@@ -325,7 +325,7 @@ uint32_t wavdec_conv(wav_handle_t *handle, uint32_t value, int code) {
  * @param handle  Handle pointer.
  * @param offset  Seeking offset based on beginning position.
  * @param whence  Beginning position for seeking.
- * @return  0 is success, otherwise failure.
+ * @return  -1 is failure, 0 is success.
  */
 int wavdec_seek(wav_handle_t *handle, int offset, int whence) {
     uint32_t total_frames;
@@ -358,7 +358,7 @@ int wavdec_seek(wav_handle_t *handle, int offset, int whence) {
  * @param handle  Handle pointer.
  * @param buff    Data buffer pointer.
  * @param size    Reading size(in frames).
- * @return  0 is success, otherwise failure.
+ * @return  -1 is failure, otherwise the actual reading size(in frames).
  */
 int wavdec_read(wav_handle_t *handle, void *buff, uint32_t size) {
     uint32_t offset;
